@@ -1,0 +1,29 @@
+#/bin/sh
+sudo sysctl -w net.ipv6.conf.all.disable_ipv6=1
+sudo apt-get update
+sudo apt-get upgrade
+sudo apt-get install language-pack-ru language-pack-ru-base
+sudo locale-gen ru_RU.CP1251
+sudo locale-gen ru_RU.UTF-8
+sudo update-locale
+sudo dpkg-reconfigure tzdata
+sudo apt-get install openssh-server openvpn mc pbzip2 exfat-fuse exfat-utils
+sudo systemctl disable rsyslog.service
+sudo dpkg-reconfigure cloud-init
+sudo apt purge cloud-init
+wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+sudo apt-add-repository 'deb http://apt.postgresql.org/pub/repos/apt/ bionic-pgdg main'
+sudo apt-get update
+sudo apt-get install postgresql-client-12 postgresql-12 libpq-dev
+sudo apt-get install git build-essential gcc pkg-config cmake libgmp3-dev libssl-dev libffi-dev
+sudo apt-get install python python3 python-dev python3-dev python-six python-pip virtualenv python3-venv
+sudo apt-get install apache2 libapache2-mod-php php-pgsql libapache2-mod-wsgi-py3
+sudo apt-get install default-jdk
+sudo apt-get install samba
+sudo apt-get install cups
+sudo apt-get install qemu qemu-kvm libvirt-bin bridge-utils
+sudo service libvirtd start
+sudo update-rc.d libvirtd enable
+sudo apt autoremove
+sudo apt-get autoclean
+sudo apt-get clean
