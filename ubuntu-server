@@ -20,6 +20,7 @@ sudo apt-get install python python3 python-dev python3-dev python-six python-pip
 sudo apt-get install apache2 libapache2-mod-php php-pgsql libapache2-mod-wsgi-py3
 sudo apt-get install default-jdk
 sudo apt-get install samba
+sudo apt-get install nfs-kernel-server
 sudo apt-get install cups
 sudo apt-get install qemu qemu-kvm libvirt-bin bridge-utils
 sudo service libvirtd start
