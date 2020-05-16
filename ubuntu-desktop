@@ -26,7 +26,7 @@ sudo update-rc.d libvirtd enable
 
 wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add -
 rm oracle_vbox_2016.asc
-sudo apt-add-repository 'deb http://download.virtualbox.org/virtualbox/debian focal contrib'
+sudo apt-add-repository 'deb http://download.virtualbox.org/virtualbox/debian eoan contrib'
 sudo apt-get update
 #sudo apt-get install virtualbox-6.1
 
