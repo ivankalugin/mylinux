@@ -1,40 +1,41 @@
 #/bin/sh
+
 sudo sysctl -w net.ipv6.conf.all.disable_ipv6=1
+sudo systemctl disable rsyslog.service
+
 sudo apt-get update
 sudo apt-get upgrade
-sudo apt install language-pack-ru language-pack-ru-base
+
+wget --quiet https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add -
+wget --quiet https://www.postgresql.org/media/keys/ACCC4CF8.asc -O- | sudo apt-key add -
+
+sudo apt-add-repository 'deb http://download.virtualbox.org/virtualbox/debian eoan contrib'
+sudo apt-add-repository 'deb http://apt.postgresql.org/pub/repos/apt/ focal-pgdg main'
+
+sudo apt-get update
+
+sudo apt-get install postgresql-client-12 libpq-dev
+sudo apt-get install language-pack-ru language-pack-ru-base
 sudo locale-gen ru_RU.CP1251
 sudo locale-gen ru_RU.UTF-8
 sudo update-locale
 sudo dpkg-reconfigure tzdata
-sudo apt-get install ubuntu-restricted-extras openssh-server openvpn nfs-common net-tools exfat-fuse exfat-utils curl gparted gimp gimp-data gimp-plugin-registry gimp-data-extras vlc audacity xsane remmina freerdp2-x11 mc htop dia inkscape unace unrar zip unzip p7zip-full p7zip-rar sharutils rar uudeview mpack arj cabextract file-roller pbzip2
+sudo apt-get install ubuntu-restricted-extras
 sudo apt-get install default-jdk
+sudo apt-get install git build-essential gcc pkg-config cmake libssl-dev libffi-dev libgmp3-dev vim tmux mc htop
+sudo apt-get install openssh-server openvpn nfs-common net-tools curl remmina freerdp2-x11
+sudo apt-get install gparted exfat-fuse exfat-utils
+sudo apt-get install gimp gimp-data gimp-plugin-registry gimp-data-extras vlc audacity xsane dia inkscape
+sudo apt-get install unace unrar zip unzip p7zip-full p7zip-rar sharutils rar uudeview mpack arj cabextract file-roller pbzip2
 sudo apt-get install gnome-calculator
-sudo apt-get install libreoffice libreoffice-l10n-ru libreoffice-help-ru
+sudo apt-get install libreoffice libreoffice-l10n-ru libreoffice-help-ru libreoffice-base libreoffice-sdbc-postgresql
 sudo apt-get install cups printer-driver-all
-sudo apt-get install git build-essential gcc pkg-config cmake libssl-dev libffi-dev libgmp3-dev
 
-sudo apt-get update
-sudo apt-get upgrade
-sudo apt autoremove
-
-sudo systemctl disable rsyslog.service
-
-sudo apt-get install qemu qemu-kvm bridge-utils virt-manager virt-viewer
+sudo apt-get install qemu qemu-kvm bridge-utils virt-manager virt-viewer ssh-askpass
 sudo service libvirtd start
 sudo update-rc.d libvirtd enable
 
-wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add -
-rm oracle_vbox_2016.asc
-sudo apt-add-repository 'deb http://download.virtualbox.org/virtualbox/debian eoan contrib'
-sudo apt-get update
 #sudo apt-get install virtualbox-6.1
-
-wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
-sudo apt-add-repository 'deb http://apt.postgresql.org/pub/repos/apt/ focal-pgdg main'
 sudo apt-get update
-sudo apt-get install postgresql-client-12 libpq-dev libreoffice-base libreoffice-sdbc-postgresql
-
+sudo apt-get upgrade
 sudo apt autoremove
-sudo apt-get autoclean
-sudo apt-get clean
