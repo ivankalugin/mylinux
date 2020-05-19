@@ -27,7 +27,7 @@ sudo apt-get install openssh-server openvpn nfs-common net-tools curl remmina fr
 sudo apt-get install gparted exfat-fuse exfat-utils
 sudo apt-get install gimp gimp-data gimp-plugin-registry gimp-data-extras vlc audacity xsane dia inkscape
 sudo apt-get install unace unrar zip unzip p7zip-full p7zip-rar sharutils rar uudeview mpack arj cabextract file-roller pbzip2
-sudo apt-get install gnome-calculator
+sudo apt-get install gnome-calculator gnome-disk-utility
 sudo apt-get install libreoffice libreoffice-l10n-ru libreoffice-help-ru libreoffice-base libreoffice-sdbc-postgresql
 sudo apt-get install cups printer-driver-all
 
