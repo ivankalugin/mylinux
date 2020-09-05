@@ -24,7 +24,7 @@ sudo apt-get install ubuntu-restricted-extras
 sudo apt-get install default-jdk
 sudo apt-get install git build-essential gcc pkg-config cmake libssl-dev libffi-dev libgmp3-dev vim tmux mc htop
 sudo apt-get install openssh-server openvpn nfs-common net-tools curl remmina freerdp2-x11
-sudo apt-get install gparted exfat-fuse exfat-utils
+sudo apt-get install gpart gparted exfat-fuse exfat-utils
 sudo apt-get install gimp gimp-data gimp-plugin-registry gimp-data-extras vlc audacity xsane dia inkscape
 sudo apt-get install unace unrar zip unzip p7zip-full p7zip-rar sharutils rar uudeview mpack arj cabextract file-roller pbzip2
 sudo apt-get install gnome-calculator gnome-disk-utility
