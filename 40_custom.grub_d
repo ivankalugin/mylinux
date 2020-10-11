@@ -1,0 +1,29 @@
+#!/bin/sh
+exec tail -n +3 $0
+# This file provides an easy way to add custom menu entries.  Simply type the
+# menu entries you want to add after this comment.  Be careful not to change
+# the 'exec tail' line above.
+
+menuentry "Acronis True Image" {
+set quiet=1
+set gfxpayload=1024x768x32,1024x768
+set mbrcrcs=on
+set isofile="/boot/TrueImage.iso"
+search --set -f $isofile
+loopback loop $isofile
+linux (loop,msdos1)/dat10.dat lang=1 quiet force_modules=usbhid
+initrd (loop,msdos1)/dat11.dat (loop,msdos1)/dat12.dat
+boot
+}
+
+menuentry "Acronis Disk Director" {
+set quiet=1
+set gfxpayload=1024x768x32,1024x768
+set mbrcrcs=on
+set isofile="/boot/DiskDirector.iso"
+search --set -f $isofile
+loopback loop $isofile
+linux (loop,msdos1)/dat2.dat lang=1 quiet force_modules=usbhid
+initrd (loop,msdos1)/dat3.dat (loop,msdos1)/dat4.dat
+boot
+}
