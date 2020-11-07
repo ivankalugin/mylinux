@@ -30,14 +30,15 @@ sudo apt-get install unace unrar zip unzip p7zip-full p7zip-rar sharutils rar uu
 sudo apt-get install gnome-calculator gnome-disk-utility
 sudo apt-get install libreoffice libreoffice-l10n-ru libreoffice-help-ru libreoffice-base libreoffice-sdbc-postgresql
 sudo apt-get install cups printer-driver-all
+sudo apt-get install smbclient cifs-utils
 
 sudo apt-get install gnome-tweak-tool gnome-shell-extensions chrome-gnome-shell
 mkdir $HOME/.themes
 mkdir $HOME/.icons
-git clone https://github.com/Muqtxdir/yaru-remix
-cp -r yaru-remix/icons/Yaru* $HOME/.icons
-cp -r yaru-remix/themes/Yaru* $HOME/.themes
-rm -r yaru-remix
+#git clone https://github.com/Muqtxdir/yaru-remix
+#cp -r yaru-remix/icons/Yaru* $HOME/.icons
+#cp -r yaru-remix/themes/Yaru* $HOME/.themes
+#rm -r yaru-remix
 
 
 sudo apt-get install qemu qemu-kvm bridge-utils virt-manager virt-viewer ssh-askpass
