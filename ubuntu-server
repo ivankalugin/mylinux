@@ -22,9 +22,9 @@ sudo apt-get install default-jdk
 sudo apt-get install samba
 sudo apt-get install nfs-kernel-server
 sudo apt-get install cups
-sudo apt-get install qemu qemu-kvm libvirt-bin bridge-utils
-sudo service libvirtd start
-sudo update-rc.d libvirtd enable
+sudo apt-get install clonezilla
+sudo apt-get install qemu qemu-kvm libvirt-daemon libvirt-clients virt-manager virtinst bridge-utils
+sudo systemctl enable libvirtd --now
 sudo apt autoremove
 sudo apt-get autoclean
 sudo apt-get clean
