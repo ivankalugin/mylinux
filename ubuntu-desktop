@@ -14,7 +14,7 @@ sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)
 
 sudo apt-get update
 
-sudo apt-get install postgresql-client-13 libpq-dev
+sudo apt-get install postgresql-client-14 libpq-dev
 sudo apt-get install language-pack-ru language-pack-ru-base
 sudo locale-gen ru_RU.CP1251
 sudo locale-gen ru_RU.UTF-8
@@ -27,13 +27,15 @@ sudo apt-get install openssh-server openvpn nfs-common net-tools curl remmina fr
 sudo apt-get install gpart gparted exfat-fuse testdisk exfat-utils clonezilla sshfs
 sudo apt-get install gimp gimp-data gimp-plugin-registry gimp-data-extras vlc audacity xsane dia inkscape ffmpeg
 sudo apt-get install unace unrar zip unzip p7zip-full p7zip-rar sharutils rar uudeview mpack arj cabextract file-roller pbzip2
-sudo apt-get install gnome-calculator gnome-disk-utility
 sudo apt-get install libreoffice libreoffice-l10n-ru libreoffice-help-ru libreoffice-base libreoffice-sdbc-postgresql
 sudo apt-get install cups printer-driver-all
 sudo apt-get install smbclient cifs-utils
 sudo apt-get install brasero
+sudo apt-get install openshot
+sudo apt-get install nmap nmapsi4
 
-sudo apt-get install gnome-tweak-tool gnome-shell-extensions chrome-gnome-shell
+sudo apt-get install gnome-calculator gnome-disk-utility gnome-tweak-tool gnome-shell-extensions chrome-gnome-shell
+
 mkdir $HOME/.themes
 mkdir $HOME/.icons
 #git clone https://github.com/Muqtxdir/yaru-remix
@@ -42,8 +44,8 @@ mkdir $HOME/.icons
 #rm -r yaru-remix
 
 sudo apt-get install qemu qemu-kvm bridge-utils virt-manager virt-viewer ssh-askpass
+sudo apt-get install virtualbox-6.1
 
-#sudo apt-get install virtualbox-6.1
 sudo apt-get update
 sudo apt-get upgrade
 sudo apt autoremove
