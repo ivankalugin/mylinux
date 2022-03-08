@@ -1,4 +1,4 @@
-#/bin/sh
+#! /bin/sh
 
 sudo sysctl -w net.ipv6.conf.all.disable_ipv6=1
 sudo systemctl disable rsyslog.service
@@ -23,7 +23,7 @@ sudo dpkg-reconfigure tzdata
 sudo apt-get install ubuntu-restricted-extras
 sudo apt-get install default-jdk
 sudo apt-get install git build-essential gcc pkg-config cmake libssl-dev libffi-dev libgmp3-dev vim tmux mc htop
-sudo apt-get install openssh-server sshfs openvpn nfs-common net-tools curl remmina freerdp2-x11
+sudo apt-get install openssh-server sshfs openvpn easy-rsa nfs-common net-tools curl remmina freerdp2-x11
 sudo apt-get install gpart gparted exfat-fuse testdisk exfat-utils clonezilla
 sudo apt-get install unace unrar zip unzip p7zip-full p7zip-rar sharutils rar uudeview mpack arj cabextract file-roller pbzip2
 sudo apt-get install smbclient cifs-utils
@@ -35,7 +35,7 @@ sudo apt-get install brasero
 sudo apt-get install nmap nmapsi4
 
 sudo apt-get install gnome-disk-utility
-sudo apt-get install gnome-calculator gnome-tweak-tool gnome-shell-extensions chrome-gnome-shell
+#sudo apt-get install gnome-calculator gnome-tweak-tool gnome-shell-extensions chrome-gnome-shell
 
 mkdir $HOME/.themes
 mkdir $HOME/.icons
