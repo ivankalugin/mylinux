@@ -16,10 +16,11 @@ sudo apt-get -y install postgresql-client libpq-dev
 sudo apt-get -y install default-jdk
 sudo apt-get -y install git build-essential gcc pkg-config cmake libssl-dev libffi-dev libgmp3-dev vim tmux mc htop
 sudo apt-get -y install openssh-server sshfs openvpn easy-rsa nfs-common net-tools curl remmina freerdp2-x11
-sudo apt-get -y install gpart gparted exfat-fuse testdisk exfat-utils clonezilla
+sudo apt-get -y install gpart gparted exfat-fuse exfatprogs testdisk clonezilla
 sudo apt-get -y install unace unrar zip unzip p7zip-full p7zip-rar sharutils rar uudeview mpack arj cabextract file-roller pbzip2 archivemount
 sudo apt-get -y install smbclient cifs-utils
-sudo apt-get -y install gimp gimp-data gimp-plugin-registry gimp-data-extras vlc audacity xsane dia inkscape ffmpeg openshot
+sudo apt-get -y install gimp gimp-data gimp-plugin-registry gimp-data-extras vlc audacity xsane dia inkscape ffmpeg
+#sudo apt-get install openshot
 sudo apt-get -y install libreoffice libreoffice-l10n-ru libreoffice-help-ru libreoffice-base libreoffice-sdbc-postgresql
 sudo apt-get -y install cups printer-driver-all
 sudo apt-get -y install brasero
