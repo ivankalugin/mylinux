@@ -29,7 +29,7 @@ apt install vsftpd
 apt install tftpd-hpa
 apt install nfs-kernel-server
 apt install cups
-apt install mc p7zip-full pbzip2 archivemount exfat-fuse exfat-utils smartmontools
+apt install mc p7zip-full pbzip2 archivemount exfat-fuse exfat-utils cryptmount cryptsetup smartmontools
 
 apt install qemu-kvm libvirt-clients libvirt-daemon-system bridge-utils virtinst libvirt-daemon
 modprobe vhost_net
