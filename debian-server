@@ -28,6 +28,7 @@ apt install samba cifs-utils
 apt install vsftpd
 apt install tftpd-hpa
 apt install nfs-kernel-server
+apt install tgt
 apt install cups
 apt install mc p7zip-full pbzip2 archivemount exfat-fuse exfat-utils cryptmount cryptsetup smartmontools
 
