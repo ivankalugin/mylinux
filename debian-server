@@ -8,7 +8,9 @@ apt upgrade
 
 /sbin/locale-gen ru_RU.UTF-8
 /sbin/locale-gen ru_RU.CP1251
+/sbin/dpkg-reconfigure console-setup
 /sbin/dpkg-reconfigure locales
+/sbin/dpkg-reconfigure keyboard-configuraton
 /sbin/dpkg-reconfigure tzdata
 
 apt install gnupg2
@@ -18,7 +20,7 @@ sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg
 
 apt update
 apt upgrade
-apt install postgresql-client-14 postgresql-14 libpq-dev
+apt install postgresql-client-15 postgresql-15 libpq-dev
 apt install openssh-server sshfs openvpn easy-rsa net-tools
 apt install git build-essential gcc pkg-config cmake libgmp3-dev libssl-dev libffi-dev
 apt install default-jdk
