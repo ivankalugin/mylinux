@@ -1,9 +1,9 @@
 #/bin/sh
 
-sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
 wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
 
 apt-get update
 apt-get upgrade
 
-apt-get install postgresql-client-13 postgresql-13 libpq-dev
+apt-get install postgresql-client-15 postgresql-15 libpq-dev
