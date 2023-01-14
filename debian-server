@@ -11,6 +11,13 @@ apt upgrade
 /sbin/dpkg-reconfigure console-setup
 /sbin/dpkg-reconfigure locales
 /sbin/dpkg-reconfigure keyboard-configuraton
+#/etc/default/keyboard
+#XKBMODEL="pc105"
+#XKBLAYOUT="us,ru"
+#XKBVARIANT=""
+#XKBOPTIONS="grp:alt_shift_toggle"
+#BACKSPACE="guess"
+
 /sbin/dpkg-reconfigure tzdata
 
 apt install gnupg2
