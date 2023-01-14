@@ -34,24 +34,5 @@ apt install tgt open-iscsi
 apt install cups
 apt install mc p7zip-full pbzip2 archivemount exfat-fuse exfat-utils cryptmount cryptsetup smartmontools
 
-apt install qemu-kvm libvirt-clients libvirt-daemon-system bridge-utils virtinst libvirt-daemon
-modprobe vhost_net
-
-cat <<EOF >> /etc/network/interfaces
-#Configure bridge-utils and give it a static ip
-#auto br0
-#iface br0 inet static
-#        address 192.168.YYY.XXX
-#        netmask 255.255.255.0
-#        network 192.168.YYY.0
-#        broadcast 192.168.YYY.255
-#        gateway 192.168.YYY.ZZZ
-#        bridge_ports ETH0
-#        bridge_stp off
-#        bridge_fd 0
-#        bridge_maxwait 0
-#        dns-nameservers a.a.a.a b.b.b.b x.x.x.x
-EOF
-
 apt autoremove
 apt clean
