@@ -32,7 +32,7 @@ apt install tftpd-hpa
 apt install nfs-kernel-server
 apt install tgt open-iscsi
 apt install cups
-apt install mc p7zip-full pbzip2 archivemount exfat-fuse exfat-utils cryptmount cryptsetup smartmontools
+apt install vim tmux mc p7zip-full pbzip2 archivemount exfat-fuse exfat-utils cryptmount cryptsetup smartmontools
 
 apt autoremove
 apt clean
