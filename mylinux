@@ -1,0 +1,110 @@
+#/bin/sh
+
+function getdistro {
+DISTRO=$( lsb_release -i | tr [:upper:] [:lower:] | grep -Poi '(debian|ubuntu)' | uniq )
+if [ -z $DISTRO ]; then
+    DISTRO='unknown'
+fi
+PREFIX=''
+if [ "$DISTRO" == "ubuntu" ]; then
+    PREFIX='sudo'
+fi
+}
+
+function setstrings {
+COMMON='net-tools curl exfat-fuse exfatprogs cryptmount cryptsetup gnupg2'
+UBUNTU='ubuntu-restricted-extras language-pack-ru language-pack-ru-base'
+REMOTE='remmina freerdp2-x11 ssh-askpass'
+DISK='gpart testdisk partclone clonezilla'
+GNOMEEXT='gparted gnome-disk-utility gnome-calculator gnome-tweaks gnome-shell-extension-manager gnome-shell-extensions'
+LIBREOFFICE='libreoffice libreoffice-l10n-ru libreoffice-help-ru libreoffice-base' # libreoffice-sdbc-postgresql
+MEDIA='gimp gimp-data gimp-plugin-registry gimp-data-extras vlc audacity xsane dia inkscape ffmpeg brasero shotcut'
+ARC='unace unrar zip unzip p7zip-full p7zip-rar sharutils rar uudeview mpack arj cabextract file-roller pbzip2 archivemount'
+CUPS='cups'
+TERMINAL='vim tmux mc htop'
+JAVA='default-jdk'
+PROG='git build-essential gcc pkg-config cmake libgmp3-dev libssl-dev libffi-dev'
+PYTHON='python3 python3-dev python3-six python3-pip virtualenv python3-venv'
+SAMBA='samba cifs-utils'
+SMB='smbclient cifs-utils'
+PGC='postgresql-client libpq-dev'
+PGS='postgresql-client postgresql libpq-dev'
+OPENSSH='openssh-server sshfs'
+OPENVPN='openvpn easy-rsa'
+APACHE2='apache2 libapache2-mod-php' # php-pgsql libapache2-mod-wsgi-py3
+SERVERS='vsftpd tftpd-hpa nfs-kernel-server tgt open-iscsi'
+NFS='nfs-common'
+QEMUC='qemu qemu-kvm bridge-utils virt-manager virt-viewer'
+QEMUS='qemu-kvm bridge-utils virtinst libvirt-clients libvirt-daemon-system libvirt-daemon' 
+}
+
+function setrepos {
+$PREFIX sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+$PREFIX wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
+
+$PREFIX sh -c 'echo "deb [arch=amd64 signed-by=/usr/share/keyrings/oracle-virtualbox-2016.gpg] https://download.virtualbox.org/virtualbox/debian $(lsb_release -cs) contrib"  > /etc/apt/sources.list.d/vbox.list'
+$PREFIX wget -O- https://www.virtualbox.org/download/oracle_vbox_2016.asc | sudo gpg --dearmor --yes --output /usr/share/keyrings/oracle-virtualbox-2016.gpg
+$PREFIX apt update
+}
+
+function setconsole {
+$PREFIX /sbin/locale-gen ru_RU.UTF-8
+$PREFIX /sbin/locale-gen ru_RU.CP1251
+$PREFIX /sbin/dpkg-reconfigure console-setup
+$PREFIX /sbin/dpkg-reconfigure locales
+$PREFIX /sbin/dpkg-reconfigure keyboard-configuraton
+
+$PREFIX cat <<EOF >> /etc/default/keyboard
+#XKBMODEL="pc105"
+#XKBLAYOUT="us,ru"
+#XKBVARIANT=""
+#XKBOPTIONS="grp:alt_shift_toggle"
+#BACKSPACE="guess"
+EOF
+}
+
+function settmpfs {
+cat <<EOF >> /etc/fstab
+
+# tmpfs
+tmpfs	/tmp	tmpfs	defaults	0	0
+tmpfs	/var/log	tmpfs	defaults	0	0
+tmpfs	/var/cache/apt/archives	tmpfs	defaults	0	0
+EOF
+}
+
+# main
+
+getdistro
+echo "Detected Linux distribution: $DISTRO"
+
+$PREFIX apt update
+$PREFIX apt -y upgrade
+
+if [ "$1" == "CONSOLE" ]; then
+setconsole
+fi
+
+if [ "$1" == "REPOS" ]; then
+setrepos
+fi
+
+if [ "$1" == "TMPFS" ]; then
+settmpfs
+fi
+
+setstrings
+
+if [ "$DISTRO" == "ubuntu" ]; then
+$PREFIX apt install -y $UBUNTU
+fi
+
+if [ "$1" == "DESKTOP" ]; then
+$PREFIX apt install -y $COMMON $TERMINAL $DISK $OPENSSH
+$PREFIX apt install -y $REMOTE $GNOMEEXT $PGC $LIBREOFFICE $MEDIA $ARC $SMB $NFS
+fi
+
+if [ "$1" == "SERVER" ]; then
+$PREFIX apt install -y $COMMON $TERMINAL $DISK $OPENSSH
+$PREFIX apt install -y $SERVERS $PGS $SAMBA $APACHE2 $CUPS $OPENVPN
+fi
