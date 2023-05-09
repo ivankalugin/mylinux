@@ -18,7 +18,7 @@ REMOTE='remmina freerdp2-x11 ssh-askpass'
 DISK='gpart testdisk partclone clonezilla'
 GNOMEEXT='gparted gnome-disk-utility gnome-calculator gnome-tweaks gnome-shell-extension-manager gnome-shell-extensions'
 LIBREOFFICE='libreoffice libreoffice-l10n-ru libreoffice-help-ru libreoffice-base' # libreoffice-sdbc-postgresql
-MEDIA='gimp gimp-data gimp-plugin-registry gimp-data-extras vlc audacity xsane dia inkscape ffmpeg brasero shotcut'
+MEDIA='gimp gimp-data gimp-plugin-registry gimp-data-extras vlc audacity xsane dia inkscape ffmpeg brasero shotcut blender'
 ARC='unace unrar zip unzip p7zip-full p7zip-rar sharutils rar uudeview mpack arj cabextract file-roller pbzip2 archivemount'
 CUPS='cups'
 TERMINAL='vim tmux mc htop'
@@ -30,7 +30,7 @@ SMB='smbclient cifs-utils'
 PGC='postgresql-client libpq-dev'
 PGS='postgresql-client postgresql libpq-dev'
 OPENSSH='openssh-server sshfs'
-OPENVPN='openvpn easy-rsa'
+OPENVPN='openvpn easy-rsa wireguard'
 APACHE2='apache2 libapache2-mod-php' # php-pgsql libapache2-mod-wsgi-py3
 SERVERS='vsftpd tftpd-hpa nfs-kernel-server tgt open-iscsi'
 NFS='nfs-common'
@@ -39,8 +39,13 @@ QEMUS='qemu-kvm bridge-utils virtinst libvirt-clients libvirt-daemon-system libv
 }
 
 function setrepos {
+$PREFIX apt -y install curl gnupg2
 $PREFIX sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
-$PREFIX wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
+wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | $PREFIX apt-key add -
+
+curl -fsS https://www.pgadmin.org/static/packages_pgadmin_org.pub | $PREFIX gpg --dearmor -o /usr/share/keyrings/packages-pgadmin-org.gpg
+sudo sh -c 'echo "deb [signed-by=/usr/share/keyrings/packages-pgadmin-org.gpg] https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/$(lsb_release -cs) pgadmin4 main" > /etc/apt/sources.list.d/pgadmin4.list'
+$PREFIX apt update
 }
 
 function setconsole {
@@ -76,7 +81,6 @@ echo "Detected Linux distribution: $DISTRO"
 
 $PREFIX apt update
 $PREFIX apt -y upgrade
-$PREFIX apt -y install gnupg2
 
 if [ "$1" == "CONSOLE" ]; then
 setconsole
@@ -104,4 +108,8 @@ fi
 if [ "$1" == "SERVER" ]; then
 $PREFIX apt install -y $COMMON $TERMINAL $DISK $OPENSSH
 $PREFIX apt install -y $SERVERS $PGS $SAMBA $APACHE2 $CUPS $OPENVPN
+fi
+
+if [ "$1" == "PROG" ]; then
+$PREFIX apt install -y $JAVA $PROG $PYTHON
 fi
