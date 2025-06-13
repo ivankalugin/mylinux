@@ -1,9 +1,0 @@
-#/bin/sh
-
-cat <<EOF >> /etc/fstab
-
-# tmpfs
-tmpfs	/tmp	tmpfs	defaults	0	0
-tmpfs	/var/log	tmpfs	defaults	0	0
-tmpfs	/var/cache/apt/archives	tmpfs	defaults	0	0
-EOF
