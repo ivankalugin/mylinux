@@ -1,0 +1,338 @@
+#/bin/sh
+# filename: mylinux
+# version: 2025-06-14
+
+function getdistro {  # Detect distribution
+if test -e "/usr/bin/sudo"
+then
+  echo "Detected sudo"
+  PREFIX='sudo'
+else
+  PREFIX=''
+fi
+if test -e "/usr/bin/lsb_release"
+then
+  echo "Detected lsb_release"
+else
+$PREFIX apt install lsb-release
+fi
+DISTRO=$( lsb_release -i | tr [:upper:] [:lower:] | grep -Poi '(debian|ubuntu)' | uniq )
+if [ -z $DISTRO ]; then
+    DISTRO='unknown'
+fi
+CODENAME=$( lsb_release -c -s)
+RELEASE=$( lsb_release -r -s)
+DISTRORELEASE=${DISTRO}${RELEASE}
+}
+
+function getifname {  # Detect ethernet interface
+IFNAMES=$(ip -br l | awk '$1 ~ "eth|en" { print $1}')
+IFNAME=${IFNAMES[0]}
+for element in "${IFNAMES[@]}"; do
+ echo "$element"
+done
+}
+
+function setvars {  # Packages
+ARGV2=''
+CERT='gnupg2 ca-certificates'
+COMMON='exfat-fuse exfatprogs cryptmount cryptsetup locales-all locales console-setup'
+NETTOOLS='net-tools arping nmap snmp fping ftp wget curl rsync tcpdump wakeonlan'
+UBUNTU='ubuntu-restricted-extras language-pack-ru language-pack-ru-base'
+REMOTE='remmina remmina-plugin-spice freerdp2-x11 ssh-askpass'
+DISK='gpart testdisk partclone clonezilla'
+GNOMES='gnome-disk-utility gnome-calculator'
+GNOMEEXT='gnome-tweaks gnome-shell-extension-manager gnome-shell-extensions' # gnome-shell-extension-dashtodock'
+LIBREOFFICE='libreoffice libreoffice-l10n-ru libreoffice-help-ru libreoffice-base' # libreoffice-sdbc-postgresql
+GRAPH='gimp gimp-data gimp-plugin-registry gimp-data-extras xsane dia inkscape'
+MEDIA='vlc audacity ffmpeg shotcut blender handbrake'
+CAD='librecad freecad'
+TOOLS='brasero gparted'
+ARC='unace zip unzip p7zip-full sharutils uudeview mpack arj cabextract file-roller pbzip2 archivemount libarchive-tools zstd'
+CUPS='cups'
+TERMINAL='vim tmux mc htop minicom'
+JAVA='default-jre'
+PROG='git build-essential gcc pkg-config cmake libgmp3-dev libssl-dev libffi-dev'
+PYTHON='python3 python3-dev python3-six python3-pip virtualenv python3-venv'
+SAMBA='samba cifs-utils'
+SMB='smbclient cifs-utils'
+PGC='postgresql-client libpq-dev'
+PGS='postgresql-client postgresql libpq-dev'
+OPENSSH='openssh-server openssh-client sshfs'
+OPENVPN='openvpn easy-rsa wireguard'
+APACHE2='apache2 libapache2-mod-php libapache2-mod-wsgi-py3' # php-pgsql
+SERVERS='vsftpd tftpd-hpa nfs-kernel-server tgt open-iscsi isc-dhcp-server snmpd'
+NFS='nfs-common'
+QEMUC='qemu-kvm bridge-utils virt-manager virt-viewer'
+QEMUS='qemu-kvm bridge-utils virtinst libvirt-clients libvirt-daemon-system libvirt-daemon'
+NETWORK='bridge-utils vlan ifenslave'
+PXE='syslinux syslinux-efi pxelinux initramfs-tools debootstrap'
+XFCE4='xfce4 xfce4-goodies'
+XORG='xorg dbus-x11 x11-xserver-utils' # linux-image-amd64'
+XRDP='xrdp'
+ANSIBLE='ansible'
+SNAP='snapd'
+FLATPAK='flatpak'
+TOMCAT='tomcat10 tomcat10-admin tomcat10-common tomcat10-user'
+NETBOX='apache2 postgresql postgresql-common libpq-dev redis-server git python3 python3-pip python3-venv python3-dev build-essential libxml2-dev libxslt1-dev libffi-dev libssl-dev zlib1g-dev'
+ZABBIX='zabbix-frontend-php zabbix-apache-conf zabbix-sql-scripts zabbix-agent'
+DNS='8.8.8.8'
+}
+
+function getcidr() { # Convert aaa.bbb.ccc.ddd/mmm to variables
+  local ipaddressmask="${1}"
+  IFS='/' read -ra array <<< "$ipaddressmask"
+  ipaddress=${array[0]} #
+  netmasklength=${array[1]}
+  IFS='.' read -ra array <<< "$ipaddress"
+  i1=${array[0]}
+  i2=${array[1]}
+  i3=${array[2]}
+  i4=${array[3]}
+  hostlength="$((32-netmasklength))"
+  trues="$(head -c "${netmasklength}" /dev/zero | tr '\0' '1')"
+  falses="$(head -c "${hostlength}" /dev/zero | tr '\0' '0')"
+  sequence="$(sed -E 's/(.{8})(.{8})(.{8})(.{8})/\1;\2;\3;\4/' <<< "${trues}${falses}")"
+  netmask=`echo "obase=10; ibase=2; ${sequence}" | bc | xargs | tr ' ' '.'` #
+  IFS='.' read -ra array <<< "$netmask"
+  m1=${array[0]}
+  m2=${array[1]}
+  m3=${array[2]}
+  m4=${array[3]}
+  network=$((i1 & m1)).$((i2 & m2)).$((i3 & m3)).$((i4 & m4)) #
+  broadcast=$((i1 & m1 | 255-m1)).$((i2 & m2 | 255-m2)).$((i3 & m3 | 255-m3)).$((i4 & m4 | 255-m4)) #
+  firstIP=$((i1 & m1)).$((i2 & m2)).$((i3 & m3)).$(((i4 & m4)+1)) #
+  lastIP=$((i1 & m1 | 255-m1)).$((i2 & m2 | 255-m2)).$((i3 & m3 | 255-m3)).$(((i4 & m4 | 255-m4)-1)) #
+}
+
+# main
+
+getdistro
+getifname
+echo "Detected Linux distribution: $DISTRORELEASE $CODENAME"
+echo "Detected ethernet interface: $IFNAME"
+export PATH=$PATH:/sbin
+setvars
+
+if [ "$1" == "CONSOLE" ]; then # Set up russian console
+$PREFIX apt -y install locales-all console-setup
+$PREFIX /sbin/locale-gen ru_RU.UTF-8
+$PREFIX /sbin/locale-gen ru_RU.CP1251
+$PREFIX /sbin/dpkg-reconfigure locales
+$PREFIX /sbin/dpkg-reconfigure console-setup
+$PREFIX /sbin/dpkg-reconfigure keyboard-configuration
+
+#cat <<EOF | $PREFIX tee -a /etc/default/keyboard
+#XKBMODEL="pc105"
+#XKBLAYOUT="us,ru"
+#XKBVARIANT=""
+#XKBOPTIONS="grp:alt_shift_toggle"
+#BACKSPACE="guess"
+#EOF
+fi
+
+if [ "$1" == "TMPFS" ]; then # Set up temporary filesystem (in memory)
+cat <<EOF | $PREFIX tee -a /etc/fstab
+
+# tmpfs
+tmpfs	/tmp	tmpfs	defaults	0	0
+tmpfs	/var/log	tmpfs	defaults	0	0
+tmpfs	/var/cache/apt/archives	tmpfs	defaults	0	0
+EOF
+fi
+
+if [ "$1" == "STATIC" ]; then # Write interface for Debian
+read -p "Enter IP address and mask(aaa.bbb.ccc.ddd/mmm): " ipaddressmask
+getcidr "${ipaddressmask}"
+static="# The primary network interface
+auto $IFNAME
+iface $IFNAME  inet static
+ address $ipaddress
+ netmask $netmask
+ network $network
+ broadcast $broadcast
+ gateway $firstIP # $lastIP
+ dns-nameservers $DNS"
+echo "$static" | $PREFIX tee -a /etc/network/interfaces
+fi
+
+if [ "$1" == "STATICROUTES" ]; then
+$PREFIX touch /etc/network/if-up.d/staticroutes
+$PREFIX chmod 755 /etc/network/if-up.d/staticroutes
+static="#!/bin/sh
+if [ \"\$IFACE\" = \"$IFNAME\" ]; then
+    # ip route add 192.168.1.0/24 via 192.168.0.1
+fi"
+echo "$static" | $PREFIX tee -a /etc/network/if-up.d/staticroutes
+fi
+
+if [ "$1" == "BRIDGE" ]; then
+read -p "Enter IP address and mask(aaa.bbb.ccc.ddd/mmm): " ipaddressmask
+getcidr "${ipaddressmask}"
+    if [ "$DISTRO" == "ubuntu" ]; then
+bridge="#Bridge
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    $$IFNAME:
+      dhcp4: false
+      dhcp6: false
+  bridges:
+    br0:
+      interfaces: [ $IFNAME ]
+      dhcp4: false
+      dhcp6: false
+      addresses: [$ipaddressmask]
+      routes:
+      - to: default
+        via: $firstIP
+        metric: 100
+        on-link: true
+      mtu: 1500
+      nameservers:
+        addresses: [$DNS]
+      link-local: [ ]
+      parameters:
+        stp: true
+        forward-delay: 4"
+    echo "$bridge" | $PREFIX tee -a /etc/netplan/01-network-manager-all.yaml
+    fi
+
+    if [ "$DISTRO" == "debian" ]; then
+bridge="#Configure bridge-utils and give it a static ip
+auto br0
+iface br0 inet static
+        address $ipaddress
+        netmask $netmask
+        network $network
+        broadcast $broadcast
+        gateway $firstIP # $lastIP
+        bridge_ports $IFNAME
+        bridge_stp off
+        bridge_fd 0
+        bridge_maxwait 0
+        # bridge-vlan-aware=yes
+        # bridge-pvid 1
+        # bridge-vids 2-4094
+        dns-nameservers $DNS"
+    echo "$bridge" | $PREFIX tee -a /etc/network/interfaces
+    fi
+fi
+
+if [ "$1" == "VAR" ]; then # Run custom package variable
+ARGV2=$2
+$PREFIX apt install -y ${!ARGV2}
+fi
+
+if [ "$1" == "UPDATE" ]; then
+$PREFIX apt update
+$PREFIX apt -y full-upgrade
+$PREFIX apt -y autoremove
+$PREFIX snap refresh
+$PREFIX flatpak -y update
+fi
+
+if [ "$1" == "DESKTOP" ]; then
+$PREFIX apt install -y $CERT $COMMON $NETTOOLS $TERMINAL $DISK $OPENSSH $JAVA $REMOTE $PGC $LIBREOFFICE $GRAPH $MEDIA $ARC $TOOLS $SMB $NFS
+fi
+
+if [ "$1" == "SERVER" ]; then
+$PREFIX apt install -y $CERT $COMMON $NETTOOLS $TERMINAL $DISK $OPENSSH $JAVA $NETWORK $PGS $SERVERS $SAMBA $APACHE2 $CUPS $OPENVPN $PXE
+$PREFIX systemctl disable apache2 postgresql vsftpd tftpd-hpa nfs-kernel-server tgt open-iscsi isc-dhcp-server cups cups-browsed samba smbd nmbd openvpn snmpd
+fi
+
+if [ "$1" == "PROG" ]; then
+$PREFIX apt install -y $CERT $JAVA default-jdk $PROG $PYTHON
+fi
+
+if [ "$1" == "XRDP" ]; then
+$PREFIX apt install -y $CERT $XRDP
+$PREFIX adduser xrdp ssl-cert
+$PREFIX systemctl restart xrdp
+fi
+
+if [ "$1" == "SNAP" ]; then
+$PREFIX apt install -y $SNAP $FLATPAK
+$PREFIX snap install snap-store
+$PREFIX flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+fi
+
+if [ "$1" == "KVM" ]; then
+$PREFIX apt install -y $QEMUS
+$PREFIX modprobe vhost_net
+fi
+
+if [ "$1" == "MSSQL" ]; then # Achtung! 22.04!
+    if [ "$DISTRO" == "ubuntu" ]; then
+    $PREFIX apt-get install software-properties-common
+    $PREFIX apt-get update
+    curl https://packages.microsoft.com/keys/microsoft.asc | $PREFIX tee /etc/apt/trusted.gpg.d/microsoft.asc
+    $PREFIX add-apt-repository "$(wget -qO- https://packages.microsoft.com/config/ubuntu/22.04/mssql-server-2022.list)"
+    $PREFIX apt-get update
+    $PREFIX apt-get install -y mssql-server
+    fi
+fi
+
+if [ "$1" == "PGREPOS" ]; then # Set up postgresql repository
+$PREFIX apt -y install $CERT
+$PREFIX apt -y install curl postgresql-common
+$PREFIX /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh
+curl -fsS https://www.pgadmin.org/static/packages_pgadmin_org.pub | $PREFIX gpg --dearmor -o /usr/share/keyrings/packages-pgadmin-org.gpg
+$PREFIX sh -c 'echo "deb [signed-by=/usr/share/keyrings/packages-pgadmin-org.gpg] https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/$CODENAME pgadmin4 main" > /etc/apt/sources.list.d/pgadmin4.list'
+$PREFIX apt update
+$PREFIX apt upgrade
+fi
+
+if [ "$1" == "PROXMOX" ]; then
+echo "deb [arch=amd64] http://download.proxmox.com/debian/pve $CODENAME pve-no-subscription" | $PREFIX tee /etc/apt/sources.list.d/pve-install-repo.list
+$PREFIX wget https://enterprise.proxmox.com/debian/proxmox-release-$CODENAME.gpg -O /etc/apt/trusted.gpg.d/proxmox-release-$CODENAME.gpg
+$PREFIX apt update
+echo Add an /etc/hosts entry for your static IP address
+echo The hostname of your machine must be resolvable via /etc/hosts.
+echo
+echo apt install proxmox-default-kernel
+echo systemctl reboot
+echo
+echo apt install proxmox-ve postfix open-iscsi chrony
+echo apt remove linux-image-amd64 'linux-image-6.1*'
+echo update-grub
+echo apt remove os-prober
+fi
+
+if [ "$1" == "ZABBIX" ]; then
+ZABBIXDEB='zabbix-release_latest_7.2+'${DISTRORELEASE}'_all.deb'
+$PREFIX wget https://repo.zabbix.com/zabbix/7.2/release/$DISTRO/pool/main/z/zabbix-release/$ZABBIXDEB
+$PREFIX dpkg -i $ZABBIXDEB
+$PREFIX apt update
+$PREFIX apt install $ZABBIX zabbix-server-pgsql php-pgsql
+echo After install:
+echo sudo -u postgres createuser --pwprompt zabbix
+echo sudo -u postgres createdb -O zabbix zabbix 
+echo zcat /usr/share/zabbix/sql-scripts/postgresql/server.sql.gz | sudo -u zabbix psql zabbix
+echo
+echo Edit file /etc/zabbix/zabbix_server.conf: DBPassword=password
+echo
+echo systemctl restart zabbix-server zabbix-agent apache2
+echo systemctl enable zabbix-server zabbix-agent apache2 
+echo
+echo The default URL for Zabbix UI when using Apache web server is http://host/zabbix 
+fi
+
+if [ "$1" == "VIRTUALBOX" ]; then
+wget -O- https://www.virtualbox.org/download/oracle_vbox_2016.asc | $PREFIX gpg --yes --output /usr/share/keyrings/oracle-virtualbox-2016.gpg --dearmor
+echo "deb [arch=amd64 signed-by=/usr/share/keyrings/oracle-virtualbox-2016.gpg] https://download.virtualbox.org/virtualbox/debian $CODENAME contrib" | $PREFIX tee /etc/apt/sources.list.d/virtualbox.list
+$PREFIX apt update
+$PREFIX apt install virtualbox-7.1
+echo "Dont forget download extension pack."
+fi
+
+if [ "$1" == "WINE" ]; then
+$PREFIX dpkg --add-architecture i386
+wget -O - https://dl.winehq.org/wine-builds/winehq.key | $PREFIX gpg --dearmor -o /etc/apt/keyrings/winehq-archive.key -
+winesources='winehq-'${CODENAME}'.sources'
+$PREFIX wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/$DISTRO/dists/$CODENAME/$winesources
+$PREFIX apt update
+$PREFIX apt install --install-recommends winehq-stable
+fi
+# end of file
