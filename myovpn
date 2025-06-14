@@ -1,0 +1,68 @@
+#/bin/sh
+# 2025-05-03 : 
+
+function getdistro {
+DISTRO=$( lsb_release -i | tr [:upper:] [:lower:] | grep -Poi '(debian|ubuntu)' | uniq )
+if [ -z $DISTRO ]; then
+    DISTRO='unknown'
+fi
+CODENAME=$( lsb_release -c -s)
+RELEASE=$( lsb_release -r -s)
+PREFIX=''
+if [ "$DISTRO" == "ubuntu" ]; then
+    PREFIX='sudo'
+fi
+}
+
+function setvars {
+SERVER='server'
+CLIENT='client'
+CLIENT_CONFIG=/etc/openvpn/client.conf
+CLIENT_DIR=/etc/openvpn/client
+}
+
+# main
+
+getdistro
+echo "Detected Linux distribution: $DISTRO $CODENAME $RELEASE"
+export PATH=$PATH:/sbin
+
+setvars
+
+if [ "$1" == "EASYRSA" ]; then
+$PREFIX rm -rf /etc/easy-rsa
+$PREFIX cp -r /usr/share/easy-rsa /etc/
+cd /etc/easy-rsa/
+$PREFIX ./easyrsa init-pki
+$PREFIX ./easyrsa build-ca
+$PREFIX ./easyrsa gen-dh
+$PREFIX ./easyrsa build-server-full $SERVER nopass
+$PREFIX openvpn --genkey secret /etc/easy-rsa/pki/ta.key
+$PREFIX ./easyrsa gen-crl
+$PREFIX cp -rp /etc/easy-rsa/pki/{ca.crt,dh.pem,ta.key,crl.pem,issued,private} /etc/openvpn/$SERVER/
+$PREFIX cp -rp /usr/share/doc/openvpn/examples/sample-config-files/{server.conf,client.conf} /etc/openvpn/
+fi
+
+if [ "$1" == "CLIENT" ]; then
+CLIENT=$2
+cd /etc/easy-rsa/
+$PREFIX ./easyrsa build-client-full $CLIENT nopass
+$PREFIX rm -rf /etc/openvpn/client/$CLIENT
+$PREFIX mkdir  /etc/openvpn/client/$CLIENT
+$PREFIX cp -rp /etc/easy-rsa/pki/{ca.crt,issued/$CLIENT.crt,private/$CLIENT.key} /etc/openvpn/client/$CLIENT
+fi
+
+if [ "$1" == "OVPN" ]; then
+CLIENT=$2
+rm $CLIENT.ovpn
+$PREFIX cat ${CLIENT_CONFIG} > $CLIENT.ovpn
+echo -e '<ca>' >> $CLIENT.ovpn
+$PREFIX cat  ${CLIENT_DIR}/$CLIENT/ca.crt >> $CLIENT.ovpn
+echo -e '</ca>\n<cert>' >> $CLIENT.ovpn
+$PREFIX cat  ${CLIENT_DIR}/$CLIENT/$CLIENT.crt >> $CLIENT.ovpn
+echo -e '</cert>\n<key>' >> $CLIENT.ovpn
+$PREFIX cat  ${CLIENT_DIR}/$CLIENT/$CLIENT.key >> $CLIENT.ovpn
+echo -e '</key>\n<tls-auth>' >> $CLIENT.ovpn
+$PREFIX cat  ${CLIENT_DIR}/../$SERVER/ta.key >> $CLIENT.ovpn
+echo -e '</tls-auth>' >> $CLIENT.ovpn
+fi
